@@ -82,9 +82,9 @@ class ChatUI(object):
 
         loop = asyncio.get_event_loop()
         self._urwid_loop = urwid.MainLoop(
-            LoadingWidget(), palette, handle_mouse=True,
+            LoadingWidget(), palette, handle_mouse=False,
             input_filter=self._input_filter,
-            event_loop=urwid.AsyncioEventLoop(loop=loop, delay=0.1)
+            event_loop=urwid.AsyncioEventLoop(loop=loop)
         )
 
         self._urwid_loop.screen.set_terminal_properties(colors=palette_colors)
@@ -340,14 +340,6 @@ class ConversationPickerWidget(urwid.WidgetWrap):
             super().keypress(size, 'up')
         else:
             return key
-
-    def mouse_event(self, size, event, button, col, row, focus):
-        if button == 4:
-            super().keypress(size, 'up')
-        elif button == 5:
-            super().keypress(size, 'down')
-
-        return super().mouse_event(size, event, button, col, row-1, focus)
 
 
 class ReturnableEdit(urwid.Edit):
@@ -785,12 +777,6 @@ class ConversationWidget(urwid.WidgetWrap):
         # Update the title in case unread count or conversation name changed.
         self._set_title()
 
-    def mouse_event(self, size, event, button, col, row, focus):
-        if button == 4:
-            super().keypress(size, 'up')
-        elif button == 5:
-            super().keypress(size, 'down')
-
 
 class TabbedWindowWidget(urwid.WidgetWrap):
 
@@ -861,32 +847,6 @@ class TabbedWindowWidget(urwid.WidgetWrap):
             self._widget_title[widget] = title
         self._update_tabs()
 
-    def mouse_event(self, size, event, button, col, row, focus):
-        if button == 0:
-            return
-
-        if row > 0 or button == 4 or button == 5:
-            self.get_current_widget().mouse_event(size, event, button, col, row, focus)
-        elif button == 1 or button == 3:
-            cur_col = 0
-
-            for num, widget in enumerate(self._widgets):
-                cur_col += len(self._widget_title[widget]) + 3
-
-                if cur_col > col:
-                    if button == 1:
-                        self._tab_index = num
-                        self._update_tabs()
-                    elif button == 3 and num > 0:
-                        self._widgets.remove(widget)
-                        del self._widget_title[widget]
-
-                        if self._tab_index >= num:
-                            self._tab_index -= 1
-
-                        self._update_tabs()
-
-                    break
 
 def set_terminal_title(title):
     """Use an xterm escape sequence to set the terminal title."""
