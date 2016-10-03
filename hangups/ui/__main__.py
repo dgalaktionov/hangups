@@ -84,7 +84,7 @@ class ChatUI(object):
         self._urwid_loop = urwid.MainLoop(
             LoadingWidget(), palette, handle_mouse=False,
             input_filter=self._input_filter,
-            event_loop=urwid.AsyncioEventLoop(loop=loop)
+            event_loop=urwid.AsyncioEventLoop(loop=loop, delay=0.1)
         )
 
         self._urwid_loop.screen.set_terminal_properties(colors=palette_colors)
